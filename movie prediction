@@ -1,0 +1,184 @@
+!pip install numpy
+
+import pandas as pd
+df=pd.read_csv("/content/IMDb Movies India.csv",encoding='ISO-8859-1')
+df.head()
+
+print(df.loc[0])
+
+print(df.loc[[0,1]])
+
+print(df)
+
+print(pd.options.display.max_rows)
+
+pd.options.display.max_rows=9999
+print(df)
+
+df.head()
+
+df.tail()
+
+df.info()
+
+df.shape
+
+df.info()
+
+df.describe()
+
+df.isnull().sum()
+
+data=df.drop_duplicates(subset="Rating")
+data
+
+
+
+df.value_counts("Year")
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+sns.countplot(x="Rating",data=df)
+plt.show()
+
+sns.histplot(df['Rating'],bins=10)
+plt.title("Distribution of Rating")
+plt.show()
+
+sns.scatterplot(x="Rating",y="Duration",hue='Year',data=df)
+plt.legend(bbox_to_anchor=(1,1),loc=2)
+plt.show()
+
+sns.pairplot(df.drop(['Votes'],axis=1),
+             hue='Genre',height=2)
+
+import matplotlib.pyplot as plt
+plot=sns.FacetGrid(df,hue="Year")
+plot.map(sns.distplot,"Rating").add_legend()
+plt.show()
+
+corr=data.corr(method='pearson')
+corr
+
+
+
+corr=df.corr()
+sns.heatmap(corr,
+            xticklabels=corr.Rating,
+            yticklabels=corr.columns)
+
+sns.countplot(x="Year",data=df)
+plt.show()
+
+from matplotlib import dates as mdates
+import matplotlib.ticker as ticker
+
+df.describe(include='all')
+
+df.isnull().sum()
+
+df.drop_duplicates(subset='Name',inplace=True)
+df.duplicated().value_counts()
+
+df=df.drop(df.index[0]).reset_index(drop=True)
+df.head()
+
+df.isnull().sum().sort_values(ascending=False)/len(df)
+
+print("number of rows:",df.shape[0])
+print("number of columns:",df.shape[1])
+print("number of rows&columns:",df.shape[0],df.shape[1])
+print("number of columns&rows:",df.shape[1],df.shape[0])
+
+sns.heatmap(df.isnull())
+plt.title("Missing values of IBDM Indian Movies")
+
+df.drop_duplicates(inplace=True)
+df.shape
+
+df.head()
+
+df.isnull().sum()
+
+miss_count=df.isnull().sum().sort_values(ascending=False)
+miss_perc=(round(df.isnull().sum()/df.isnull().count(),4)*100).sort_values(ascending=False)
+miss_data=pd.concat([miss_count,miss_perc],axis=1,keys=['miss_count','miss_perc'])
+miss_data
+
+df.dropna(subset=['Rating'],inplace=True)
+(round(df.isnull().sum()/df.isnull().count(),4)*100).sort_values(ascending=False)
+
+df.isnull().sum()
+
+df.dropna(subset=['Director','Actor 1','Actor 2','Actor 3','Genre'],inplace=True)
+
+
+(round(df.isnull().sum()/df.isnull().count(),4)*100).sort_values(ascending=False)
+
+df['Duration']=df['Duration'].astype(str)
+df['Duration']=pd.to_numeric(df['Duration'].str.replace('min',''),errors='coerce')
+df['Duration'].fillna(df['Duration'].mean(),inplace=True)
+
+df.isnull().sum()
+
+df.shape
+
+df['Year'] = df['Year'].apply(lambda x: str(x).split(')')[0] if ')' in str(x) else x)
+
+
+import re
+
+df['Year'] = df['Year'].apply(lambda x: re.search(r'\((\d{4})\)', str(x)).group(1) if re.search(r'\((\d{4})\)', str(x)) else x)
+
+
+year_lst = []
+for v in df['Year']:
+    if isinstance(v, str) and '(' in v:
+        year_lst.append(v.split('(')[1])
+    else:
+        year_lst.append(str(v))
+
+df['Year'] = year_lst
+
+
+
+print(df['Votes'].dtype)
+
+df['Votes']=df['Votes'].astype(str)
+
+df['Votes'] = df['Votes'].replace(',', '', regex=True).astype(float).astype('Int64')
+
+
+print(df['Votes'].dtype)
+
+df.info()
+
+df['Rating'].unique()
+
+df[['Rating','Duration','Votes']].describe()
+
+df.drop("Duration",axis=1,inplace=True)
+df[df['Votes']>10000]
+
+df.shape
+
+df_update=df.drop(['Name'],axis=1)
+df_update.info()
+
+x=df_update.drop('Rating',axis=1)
+y=df_update['Rating']
+x.head()
+
+actor1_encod = df_update.groupby('Actor 1').agg({'Rating': 'mean'}).to_dict()
+actor2_encod = df_update.groupby('Actor 2').agg({'Rating': 'mean'}).to_dict()
+actor3_encod = df_update.groupby('Actor 3').agg({'Rating': 'mean'}).to_dict()
+director_encod = df_update.groupby('Director').agg({'Rating': 'mean'}).to_dict()
+genre_encod = df_update.groupby('Genre').agg({'Rating': 'mean'}).to_dict()
+df_update['actor1_encoded'] = round(df_update['Actor 1'].map(actor1_encod['Rating']),1)
+df_update['actor2_encoded'] = round(df_update['Actor 2'].map(actor2_encod['Rating']),1)
+df_update['actor3_encoded'] = round(df_update['Actor 3'].map(actor3_encod['Rating']),1)
+df_update['director_encoded'] = round(df_update['Director'].map(director_encod['Rating']),1)
+df_update['genre_encoded'] = round(df_update['Genre'].map(genre_encod['Rating']),1)
+df_update.drop(['Actor 1', 'Actor 2', 'Actor 3', 'Director', 'Genre'], axis=1, inplace=True)
+df_update.head()
